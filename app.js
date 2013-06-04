@@ -132,12 +132,6 @@ LJ.factory('Rating', function($http, $timeout) {
 function RatingCtrl($scope, Rating, $route, $routeParams, $location, $timeout) {
   var pageSize = 5;
 
-  $scope.categories = [
-    {name: 'Home',  route: '/'},
-    {name: 'Art',   route: '/art'},
-    {name: 'Sport', route: '/sport'}
-  ];
-
   $scope.showHidden     = false;
   $scope.showRead       = false;
   $scope.showFriends    = false;
@@ -193,7 +187,6 @@ function RatingCtrl($scope, Rating, $route, $routeParams, $location, $timeout) {
       $scope.loading = false;
 
       $timeout(function() {
-        // console.log('animate on');
         animate(true);
       });
     });
