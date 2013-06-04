@@ -130,7 +130,7 @@ LJ.factory('Rating', function($http, $timeout) {
 });
 
 function RatingCtrl($scope, Rating, $route, $routeParams, $location, $timeout) {
-  var pageSize = 25;
+  var pageSize = 5;
 
   $scope.categories = [
     {name: 'Home',  route: '/'},
