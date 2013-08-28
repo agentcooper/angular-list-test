@@ -41,31 +41,70 @@ angular.module('LJ')
     });
   }
 
+  Rating.categories = [
+    { name: 'home'      , id:  0, url: '/' },
+    { name: 'news'      , id: 14 },
+    { name: 'cute'      , id:  4 },
+    { name: 'knowing'   , id:  2 },
+    { name: 'society'   , id:  8 },
+    { name: 'discussion', id: 10 },
+    { name: 'media'     , id:  6 },
+    { name: 'world'     , id: 16 },
+    { name: 'adult'     , id: 12 }
+  ];
+
+  function getCategoryId(name) {
+    var categoryId = 0;
+
+    Rating.categories.some(function(category) {
+      if (category.name === name) {
+        categoryId = category.id;
+        return true;
+      }
+    });
+
+    return categoryId;
+  }
+
   /*
    * Get rating from server
    * @param {string} category Category type
    */
   Rating.get = function(category, callback) {
 
-    setTimeout(function() {
+    var str = 'http://l-api.livejournal.com/__api/?request=';
 
-      switch (category) {
-        case 'art':
-          Rating.entries = debugEntries1;
-        break;
+    var obj = {
+      'jsonrpc': '2.0',
+      'method': 'homepage.get_rating',
+      'params': {
+        'homepage': 1,
+        'sort': 'visitors',
+        'page': 0,
+        'country': 'cyr',
+        'locale': 'ru_RU',
+        'category_id': getCategoryId(category)
+      },
 
-        case 'sport':
-          Rating.entries = debugEntries1;
-        break;
+      'id': Date.now()
+    };
 
-        default:
-          Rating.entries = debugEntries1;
-        break;
+    $http.jsonp(str + encodeURIComponent(JSON.stringify(obj)), {
+      params: {
+        callback: 'JSON_CALLBACK'
+      }
+    }).success(function(data) {
+      if (!data.result) {
+        console.error(data);
       }
 
-      $timeout(callback);
+      console.log(data.result.rating);
 
-    }, 1500);
+      Rating.entries = data.result.rating;
+
+      callback(data.result.rating);
+    });
+
   };
 
   /*
@@ -91,7 +130,7 @@ angular.module('LJ')
   };
 
   Rating.getUser = function(entry) {
-    return entry.user;
+    return entry.ljuser[0].username;
   }
 
   Rating.hash = function(entry) {
@@ -178,15 +217,22 @@ angular.module('LJ')
 
   $scope.$on('$routeChangeSuccess', function(next, current) {
     // do not animate on initial render and category switching
-    animate(false);
-    $scope.loading = true;
-
     $scope.category = current.params.categoryName;
+
     if (!$scope.category) {
       $scope.category = "";
     }
+  });
 
-    Rating.get(current.params.categoryName, function() {
+  $scope.$watch('category', function(category) {
+    if (typeof category !== 'string') {
+      return;
+    }
+
+    animate(false);
+    $scope.loading = true;
+
+    Rating.get(category, function() {
       $scope.showAmount = pageSize;
 
       $scope.loading = false;
@@ -196,6 +242,10 @@ angular.module('LJ')
       });
     });
   });
+
+  $scope.getUser = Rating.getUser;
+
+  $scope.categories = Rating.categories;
 
   /*
    * Toggle animation state
@@ -211,10 +261,17 @@ angular.module('LJ')
 angular.module('LJ')
 .directive('route', function() {
   return function(scope, element, attrs) {
-    scope.$watch('category', function() {
+    var route = attrs.route;
+
+    if (attrs.route === '/') {
+      route = '';
+    }
+
+    scope.$watch('category', function(category) {
+      // console.log(category, attrs.route);
       element.toggleClass(
         'b-rating__category-active',
-        scope.category === attrs.route);
+        category === route);
     });
   }
 })
