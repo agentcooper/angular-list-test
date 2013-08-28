@@ -23,7 +23,7 @@
 
       <ul class="b-rating__categories">
         <li ng-repeat="categoryItem in categories" class="b-rating__category" route="{{categoryItem.url || categoryItem.name}}">
-          <a href="{{ categoryItem.url || ('#/category/' + categoryItem.name) }}">{{categoryItem.name}}</a>
+          <a href="#{{ categoryItem.url || ('/category/' + categoryItem.name) }}">{{categoryItem.name}}</a>
         </li>
       </ul>
 
