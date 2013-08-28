@@ -47,7 +47,7 @@
         infinite-scroll="showMore()"
         infinite-scroll-disabled="!scrollMode"
         >
-        <li class="b-entryunit" ng-repeat="entry in filtered()" ng-class="{'b-entryunit__returned-read': showRead && read(entry), 'b-entryunit__returned-hidden': showHidden && hidden(entry)}" ng-animate="listAnimation">
+        <li class="b-entryunit" ng-repeat="entry in filtered() track by entry.post_url" ng-class="{'b-entryunit__returned-read': showRead && read(entry), 'b-entryunit__returned-hidden': showHidden && hidden(entry)}" ng-animate="listAnimation">
           <p><a href="{{entry.post_url}}" target="_blank"><strong ng-bind="entry.subject"></strong> <span ng-bind="entry.user"></span></a></p>
           <p ng-bind="getUser(entry)"></p>
           <p ng-bind="entry.body"></p>
@@ -56,7 +56,7 @@
         </li>
       </ol>
 
-      <button class="b-more" ng-click="showMore()" ng-show="!scrollMode && anyLeft()">More entries</button>
+      <button class="b-more" ng-click="showMore()" ng-show="!scrollMode && anyLeft">More entries</button>
 
     </div>
   </div>

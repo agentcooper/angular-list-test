@@ -185,15 +185,21 @@ angular.module('LJ')
 
   $scope.scrollMode = false;
 
-  $scope.filtered = function(amount) {
+  $scope.filtered = function() {
     var unique = Rating.uniqueEntries();
 
-    return Rating.entries.filter(function(entry) {
+    var filtered = Rating.entries.filter(function(entry) {
       return ($scope.showDuplicates ? true : Rating.isFirst(entry, unique)) &&
              ($scope.showHidden     ? true : !Rating.hidden(entry)) &&
              ($scope.showRead       ? true : !Rating.read(entry))   &&
              ($scope.showFriends    ? true : !Rating.fromAFriend(entry));
-    }).slice(0, amount || $scope.showAmount);
+    });
+
+    /* side effect */
+    $scope.anyLeft =
+      filtered.slice(0, $scope.showAmount).length < filtered.slice(0, $scope.showAmount + pageSize).length;
+
+    return filtered.slice(0, $scope.showAmount);
   };
 
   $scope.toggleHidden = function(toggledEntry, event) {
@@ -209,10 +215,6 @@ angular.module('LJ')
   $scope.showMore = function() {
     $scope.scrollMode = true;
     $scope.showAmount += pageSize;
-  };
-
-  $scope.anyLeft = function() {
-    return $scope.filtered().length < $scope.filtered($scope.showAmount + pageSize).length;
   };
 
   $scope.$on('$routeChangeSuccess', function(next, current) {
