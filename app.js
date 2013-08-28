@@ -1,4 +1,4 @@
-var LJ = angular.module('LJ', ['infinite-scroll'], function($routeProvider, $locationProvider) {
+angular.module('LJ', ['infinite-scroll'], function($routeProvider, $locationProvider) {
   $locationProvider.html5Mode(false);
 
   $routeProvider
@@ -6,7 +6,8 @@ var LJ = angular.module('LJ', ['infinite-scroll'], function($routeProvider, $loc
     .when('/', {});
 });
 
-LJ.factory('Rating', function($http, $timeout) {
+angular.module('LJ')
+.factory('Rating', function($http, $timeout) {
   var Rating = {};
 
   // these should persist between category changes
@@ -129,7 +130,8 @@ LJ.factory('Rating', function($http, $timeout) {
   return Rating;
 });
 
-function RatingCtrl($scope, Rating, $route, $routeParams, $location, $timeout) {
+angular.module('LJ')
+.controller('RatingCtrl', function($scope, Rating, $route, $routeParams, $location, $timeout) {
   var pageSize = 10;
 
   $scope.showHidden     = false;
@@ -204,9 +206,10 @@ function RatingCtrl($scope, Rating, $route, $routeParams, $location, $timeout) {
       leave: 'slide-up'
     } : null;
   }
-}
+});
 
-LJ.directive('route', function() {
+angular.module('LJ')
+.directive('route', function() {
   return function(scope, element, attrs) {
     scope.$watch('category', function() {
       element.toggleClass(
@@ -214,9 +217,8 @@ LJ.directive('route', function() {
         scope.category === attrs.route);
     });
   }
-});
-
-LJ.animation('slide-up', function () {
+})
+.animation('slide-up', function () {
   return {
     start: function(element, done, memo) {
       var $element = $(element);
@@ -225,7 +227,8 @@ LJ.animation('slide-up', function () {
       });
     }
   };
-}).animation('slide-down', function () {
+})
+.animation('slide-down', function () {
   return {
     setup: function(element) {
       $(element).css({ display: 'none' });
@@ -234,9 +237,8 @@ LJ.animation('slide-up', function () {
       $(element).slideDown('fast', done);
     }
   };
-});
-
-LJ.directive('inverted', function() {
+})
+.directive('inverted', function() {
   return {
     require: 'ngModel',
     link: function(scope, element, attrs, ngModel) {
