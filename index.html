@@ -22,12 +22,21 @@
       <h2>Categories</h2>
 
       <ul class="b-rating__categories">
-        <li ng-repeat="categoryItem in categories" class="b-rating__category" route="{{categoryItem.url || categoryItem.name}}">
-          <a href="#{{ categoryItem.url || ('/category/' + categoryItem.name) }}">{{categoryItem.name}}</a>
+        <li ng-repeat="categoryItem in categories" class="b-rating__category" route="{{categoryItem.name}}">
+          <a href="#/{{ categoryItem.route }}">{{categoryItem.name}}</a>
         </li>
       </ul>
 
       <h2>Display</h2>
+
+      <p>
+        <label for="locale">Locale</label>
+        <select id="locale" ng-model="settings.locale">
+          <option value="cyr">Common</option>
+          <option value="ua">Ukraine</option>
+          <option value="noncyr">Non-cyryllic</option>
+        </select>
+      </p>
 
       <p><label><input type="checkbox" ng-model="showHidden"> Hidden entries</label></p>
       <p><label><input type="checkbox" ng-model="showRead"> Read entries</label></p>

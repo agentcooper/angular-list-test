@@ -10,6 +10,11 @@ angular.module('LJ')
 .factory('Rating', function($http, $timeout) {
   var Rating = {};
 
+  Rating.settings = {
+    locale: 'cyr',
+    category: ''
+  };
+
   // these should persist between category changes
   Rating.readEntries   = {};
   Rating.hiddenEntries = {};
@@ -42,15 +47,15 @@ angular.module('LJ')
   }
 
   Rating.categories = [
-    { name: 'home'      , id:  0, url: '/' },
-    { name: 'news'      , id: 14 },
-    { name: 'cute'      , id:  4 },
-    { name: 'knowing'   , id:  2 },
-    { name: 'society'   , id:  8 },
-    { name: 'discussion', id: 10 },
-    { name: 'media'     , id:  6 },
-    { name: 'world'     , id: 16 },
-    { name: 'adult'     , id: 12 }
+    { name: 'home'      , id:  0, route: '' },
+    { name: 'news'      , id: 14, route: 'category/news' },
+    { name: 'cute'      , id:  4, route: 'category/cute' },
+    { name: 'knowing'   , id:  2, route: 'category/knowing' },
+    { name: 'society'   , id:  8, route: 'category/society' },
+    { name: 'discussion', id: 10, route: 'category/discussion' },
+    { name: 'media'     , id:  6, route: 'category/media' },
+    { name: 'world'     , id: 16, route: 'category/world' },
+    { name: 'adult'     , id: 12, route: 'category/adult' }
   ];
 
   function getCategoryId(name) {
@@ -81,7 +86,7 @@ angular.module('LJ')
         'homepage': 1,
         'sort': 'visitors',
         'page': 0,
-        'country': 'cyr',
+        'country': Rating.settings.locale,
         'locale': 'ru_RU',
         'category_id': getCategoryId(category)
       },
@@ -185,6 +190,8 @@ angular.module('LJ')
 
   $scope.scrollMode = false;
 
+  $scope.settings = Rating.settings;
+
   $scope.filtered = function() {
     var unique = Rating.uniqueEntries();
 
@@ -219,15 +226,16 @@ angular.module('LJ')
 
   $scope.$on('$routeChangeSuccess', function(next, current) {
     // do not animate on initial render and category switching
-    $scope.category = current.params.categoryName;
+    // $scope.category = current.params.categoryName;
 
-    if (!$scope.category) {
-      $scope.category = "";
-    }
+    Rating.settings.category = current.params.categoryName || "home";
   });
 
-  $scope.$watch('category', function(category) {
-    if (typeof category !== 'string') {
+  $scope.$watchCollection('[settings.category, settings.locale]', function(values) {
+    var category = values[0],
+        locale   = values[1];
+
+    if (!category || !locale) {
       return;
     }
 
@@ -265,11 +273,7 @@ angular.module('LJ')
   return function(scope, element, attrs) {
     var route = attrs.route;
 
-    if (attrs.route === '/') {
-      route = '';
-    }
-
-    scope.$watch('category', function(category) {
+    scope.$watch('settings.category', function(category) {
       // console.log(category, attrs.route);
       element.toggleClass(
         'b-rating__category-active',
