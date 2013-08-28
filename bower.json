@@ -1,0 +1,17 @@
+{
+  "name": "ljrating",
+  "version": "0.0.1",
+  "main": "app.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-unstable": "git://github.com/johannestroeger/bower-angular-unstable.git#1.1.5",
+    "jquery": "git://github.com/components/jquery.git#1.10.2",
+    "ngInfiniteScroll": "git://github.com/BinaryMuse/ngInfiniteScroll-bower.git#~1.0.0"
+  }
+}

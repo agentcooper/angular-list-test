@@ -1,4 +1,4 @@
-var LJ = angular.module('LJ', [], function($routeProvider, $locationProvider) {
+var LJ = angular.module('LJ', ['infinite-scroll'], function($routeProvider, $locationProvider) {
   $locationProvider.html5Mode(false);
 
   $routeProvider
@@ -50,15 +50,15 @@ LJ.factory('Rating', function($http, $timeout) {
 
       switch (category) {
         case 'art':
-          Rating.entries = Debug.artEntries;
+          Rating.entries = debugEntries1;
         break;
 
         case 'sport':
-          Rating.entries = Debug.sportEntries;
+          Rating.entries = debugEntries1;
         break;
 
         default:
-          Rating.entries = Debug.homeEntries;
+          Rating.entries = debugEntries1;
         break;
       }
 
@@ -130,7 +130,7 @@ LJ.factory('Rating', function($http, $timeout) {
 });
 
 function RatingCtrl($scope, Rating, $route, $routeParams, $location, $timeout) {
-  var pageSize = 5;
+  var pageSize = 10;
 
   $scope.showHidden     = false;
   $scope.showRead       = false;
@@ -141,6 +141,8 @@ function RatingCtrl($scope, Rating, $route, $routeParams, $location, $timeout) {
   $scope.hidden = Rating.hidden;
 
   $scope.friends = Rating.friends;
+
+  $scope.scrollMode = false;
 
   $scope.filtered = function(amount) {
     var unique = Rating.uniqueEntries();
@@ -164,6 +166,7 @@ function RatingCtrl($scope, Rating, $route, $routeParams, $location, $timeout) {
   };
 
   $scope.showMore = function() {
+    $scope.scrollMode = true;
     $scope.showAmount += pageSize;
   };
 

@@ -3,11 +3,16 @@
 <head>
 <meta charset="utf-8">
 <title>LJ Rating</title>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+
+<script src="/bower_components/jquery/jquery.min.js"></script>
+<script src="/bower_components/angular-unstable/angular.min.js"></script>
+<script src="/bower_components/ngInfiniteScroll/ng-infinite-scroll.js"></script>
+
 <link rel="stylesheet" type="text/css" href="style.css">
+
 <script src="debug.js"></script>
 <script src="app.js"></script>
+
 </head>
 <body>
   <div class="b-rating" ng-app="LJ" ng-controller="RatingCtrl" ng-class="{'b-rating-loading': loading }" ng-cloak>
@@ -51,7 +56,10 @@
 
     <div class="b-rating__list">
 
-      <ol class="b-entryunits">
+      <ol class="b-entryunits"
+        infinite-scroll="showMore()"
+        infinite-scroll-disabled="!scrollMode"
+        >
         <li class="b-entryunit" ng-repeat="entry in filtered()" ng-class="{'b-entryunit__returned-read': showRead && read(entry), 'b-entryunit__returned-hidden': showHidden && hidden(entry)}" ng-animate="listAnimation">
           <p><strong ng-bind="entry.title"></strong> <span ng-bind="entry.user"></span></p>
           <p ng-bind="entry.content"></p>
@@ -60,7 +68,7 @@
         </li>
       </ol>
 
-      <button class="b-more" ng-click="showMore()" ng-show="anyLeft()">More entries</button>
+      <button class="b-more" ng-click="showMore()" ng-show="!scrollMode && anyLeft()">More entries</button>
 
     </div>
   </div>
