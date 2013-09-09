@@ -30,7 +30,7 @@ angular.module('LJ')
 
   MainPage.settings = {
     locale: 'cyr',
-    category: 'home'
+    category: null
   };
 
   // these should persist between category changes
@@ -307,6 +307,7 @@ angular.module('LJ')
 
 angular.module('LJ')
 .controller('RatingCtrl', function($scope, MainPage, $routeParams) {
+  console.log('RatingCtrl');
   //console.log('RatingCtrl', $routeParams);
   MainPage.settings.category = $routeParams.categoryName || 'home';
 });
