@@ -1,0 +1,16 @@
+<div><b>LATEST</b> - Lorem LATEST LATEST LATEST LATEST LATEST LATEST LATEST LATEST.</div>
+
+<ol class="b-entryunits"
+  infinite-scroll="showMore()"
+  infinite-scroll-disabled="!scrollMode"
+  >
+  <li class="b-entryunit" ng-repeat="entry in filtered() track by entry.post_url" ng-class="{'b-entryunit__returned-read': showRead && read(entry), 'b-entryunit__returned-hidden': showHidden && hidden(entry)}" ng-animate="listAnimation">
+    <p><a href="{{entry.post_url}}" target="_blank"><strong ng-bind="entry.subject"></strong> <span ng-bind="entry.user"></span></a></p>
+    <p ng-bind="getUser(entry)"></p>
+    <p ng-bind="entry.body"></p>
+    <a href="" ng-click="toggleRead(entry);" ng-bind="read(entry) ? 'unread' : 'mark as read'"></a>
+    <a href="" ng-click="toggleHidden(entry);" ng-bind="hidden(entry) ? 'unhide author' : 'hide author'"></a>
+  </li>
+</ol>
+
+<button class="b-more" ng-click="showMore()" ng-show="!scrollMode && anyLeft">More entries</button>
