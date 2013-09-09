@@ -1,5 +1,5 @@
 angular.module('LJ', ['infinite-scroll'], function($routeProvider, $locationProvider) {
-  $locationProvider.html5Mode(true);
+  $locationProvider.html5Mode(false);
 
   $routeProvider
     .when('/', {
