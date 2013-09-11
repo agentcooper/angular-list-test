@@ -33,6 +33,18 @@ angular.module('LJ')
     category: null
   };
 
+  //debug for timeposts
+  var Site = Site || {server_time: Math.floor(Date.now()/1000)};
+
+  // timepost for latest category
+  MainPage.settingsLatest = {
+    'first_timepost': Math.floor(Site.server_time/120) * 120,
+    'last_timepost': 0
+  };
+
+  // current amount of pages
+  MainPage.page = 0;
+
   // these should persist between category changes
   MainPage.readEntries   = {};
   MainPage.hiddenEntries = {};
@@ -94,35 +106,43 @@ angular.module('LJ')
   /*
    * Get rating from server
    * @param {string} category Category type
+   * @param {boolean} reset Optional, set to true if a category was switched
    */
-  MainPage.get = function(category, callback) {
+  MainPage.get = function(category, callback, reset) {
+
+    MainPage.page = (reset) ? 0 : MainPage.page + 1;
+    console.log('requesting page = ', MainPage.page);
 
     var str = 'http://l-api.livejournal.com/__api/?request=';
 
-    var obj = {
-      'jsonrpc': '2.0',
-      'method': 'homepage.get_rating',
-      'params': {
-        'homepage': 1,
-        'sort': 'visitors',
-        'page': 0,
-        'country': MainPage.settings.locale,
-        'locale': 'ru_RU',
-        'category_id': getCategoryId(category)
-      },
-
-      'id': Date.now()
+    var methods = {
+      'editors': 'homepage.editors_page',
+      'latest' : 'latest.get_entries',
+      'rating' : 'homepage.get_rating'
     };
 
-    if (category === 'editors') {
-      obj.method = 'homepage.editors_page';
-    }
-    if (category === 'latest') {
-      obj.method = 'latest.get_entries';
-      //debug Site var
-      var Site = Site || {server_time: Math.floor(Date.now()/1000)};
-      obj.params.first_timepost = Math.floor(Site.server_time/120) * 120;
-    }
+    var params = {
+      'editors': {
+      },
+      'latest' : {
+        'first_timepost' : MainPage.settingsLatest.first_timepost
+      },
+      'rating' : {
+        'homepage'    : 1,
+        'sort'        : 'visitors',
+        'page'        : MainPage.page,
+        'country'     : MainPage.settings.locale,
+        'locale'      : 'ru_RU',
+        'category_id' : getCategoryId(category)
+      }
+    };
+
+    var obj = {
+      'jsonrpc': '2.0',
+      'method' : methods[category] || methods['rating'],
+      'params' : params[category]  || params['rating'],
+      'id': Date.now()
+    };
 
     $http.jsonp(str + encodeURIComponent(JSON.stringify(obj)), {
       params: {
@@ -137,18 +157,33 @@ angular.module('LJ')
 
       if (category === 'editors') {
         MainPage.editorsHTML = data.result.body;
+
+
       } else if (category === 'latest') {
-        MainPage.entries = data.result.params.homepage_latest;
+        MainPage.settingsLatest.first_timepost = data.result.params.first_timepost;
+        if (reset) {
+          MainPage.settingsLatest.last_timepost = data.result.params.last_timepost;
+          MainPage.entries = data.result.params.homepage_latest;
+        } else {
+          //console.log(data.result.params);
+          Array.prototype.push.apply(MainPage.entries, data.result.params.homepage_latest);
+        }
+
       } else {
-        MainPage.entries = data.result.rating;
+        // ratings
+        if (reset) {
+          MainPage.entries = data.result.rating;
+        } else {
+          //debug if, should be removed after backend fix
+          if (data.result.rating[0].toString() !== MainPage.entries[0].toString())
+            Array.prototype.push.apply(MainPage.entries, data.result.rating);
+        }
       }
 
       callback();
     });
 
   };
-
-
 
   /*
    * Getter/setter to indicate if entry was read
@@ -215,7 +250,7 @@ angular.module('LJ')
 
 /////////////
 angular.module('LJ')
-.controller('MainCtrl', function($scope, MainPage, $route, $routeParams, $location, $timeout) {
+.controller('MainCtrl', function($scope, MainPage, $timeout) {
   console.log('MainCtrl');
 
   var pageSize = 10;
@@ -231,7 +266,6 @@ angular.module('LJ')
   $scope.settings = MainPage.settings;
 
   $scope.scrollMode = false;
-
 
 
   $scope.filtered = function() {
@@ -262,9 +296,44 @@ angular.module('LJ')
   };
 
   $scope.showMore = function() {
-    $scope.scrollMode = true;
-    $scope.showAmount += pageSize;
+    // return if something is loading
+    if ($scope.loading || $scope.loadingMore) {
+      return;
+    }
+
+    // show more entries from MainPage.entries
+    if ($scope.anyLeft) {
+      delayAndShow();
+      return;
+    }
+
+    // load more entries from server
+    $scope.loadingMore = true;
+    MainPage.get(MainPage.settings.category, function() {
+      $scope.filtered();
+      if ($scope.anyLeft) {
+        // show more entries
+        delayAndShow();
+      } else {
+        // no more entries on server, stop asking for it
+        $scope.scrollMode = false;
+        console.log('no more');
+      }
+    });
+
   };
+
+  function delayAndShow() {
+    animate(false);
+    $scope.loadingMore = true;
+    $timeout(function() {
+      $scope.loadingMore = false;
+      animate(true);
+    }, 500);
+
+    $scope.showAmount += pageSize;
+    $scope.scrollMode = true;
+  }
 
   $scope.$watchCollection('[settings.category, settings.locale]', function(values) {
     var category = values[0],
@@ -276,16 +345,15 @@ angular.module('LJ')
 
     animate(false);
     $scope.loading = true;
+    $scope.scrollMode = false;
 
     MainPage.get(category, function() {
       $scope.showAmount = pageSize;
-
       $scope.loading = false;
-
       $timeout(function() {
         animate(true);
       });
-    });
+    }, true);
   });
 
   $scope.getUser = MainPage.getUser;
@@ -310,6 +378,7 @@ angular.module('LJ')
   console.log('RatingCtrl');
   //console.log('RatingCtrl', $routeParams);
   MainPage.settings.category = $routeParams.categoryName || 'home';
+
 });
 //////////
 
@@ -317,6 +386,22 @@ angular.module('LJ')
 .controller('LatestCtrl', function($scope, MainPage) {
   MainPage.settings.category = 'latest';
   console.log('LatestCtrl');
+
+  //@TODO update button by timeout
+  // $scope.time = 1000;//120000;
+
+  // var timeout;
+  // var ping = function(){
+  //   console.log(Date.now());
+  //   timeout = setTimeout(ping, $scope.time);
+  // };
+
+  // timeout = setTimeout(ping, $scope.time);
+  // $scope.$on('$destroy', function() {
+  //   clearTimeout(timeout);
+  // });
+
+
 });
 //////////
 

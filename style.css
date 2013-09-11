@@ -68,3 +68,15 @@ body {
   border-bottom: 1px dotted blue;
   cursor: pointer;
 }
+
+.s-footer {
+  width: 100%;
+  //background: darkslateblue;
+
+  bottom: 0;
+  height: 200px;
+  display: none;
+}
+.s-footer.vis {
+  display: block;
+}

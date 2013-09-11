@@ -9,13 +9,16 @@
 <script src="bower_components/ngInfiniteScroll/ng-infinite-scroll.js"></script>
 
 <link rel="stylesheet" type="text/css" href="style.css">
+<link rel="stylesheet" type="text/css" href="http://l-stat.livejournal.com/??lj_base.css,contextualhover.css,esn.css,widgets/widget-layout.css,widgets/ljtoday.css,widgets/waves.css,widgets/featuredcommunities.css,main.css,entryunit.css,ljtimes/ctrl.css,ljtimes/reskining/pikovit/ctrl-09-2013.css,lj_base-app.css,lanzelot/lanzelot-adaptive.css?v=1378816168">
+
+
 
 <script src="debug.js"></script>
 <script src="app.js"></script>
 
 </head>
-<body>
-  <div class="b-rating" ng-app="LJ" ng-controller="MainCtrl" ng-class="{'b-rating-loading': loading }" ng-cloak>
+<body ng-app="LJ" ng-controller="MainCtrl" class='b-mainpage-state-rating b-mainpage-state-rating-updates b-mainpage-state-rating-scroll'>
+  <div class="b-rating" ng-class="{'b-rating-loading': loading }" ng-cloak>
 
     <div class="b-rating__settings">
 
@@ -53,5 +56,7 @@
     <div ng-view class="b-rating__list"></div>
 
   </div>
+
+  <footer class="s-footer" ng-class="{'vis': !scrollMode }">FOOTER</footer>
 </body>
 </html>
