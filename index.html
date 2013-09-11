@@ -9,13 +9,16 @@
 <script src="bower_components/ngInfiniteScroll/ng-infinite-scroll.js"></script>
 
 <link rel="stylesheet" type="text/css" href="style.css">
+<link rel="stylesheet" type="text/css" href="http://l-stat.livejournal.com/??lj_base.css,contextualhover.css,esn.css,widgets/widget-layout.css,widgets/ljtoday.css,widgets/waves.css,widgets/featuredcommunities.css,main.css,entryunit.css,ljtimes/ctrl.css,ljtimes/reskining/pikovit/ctrl-09-2013.css,lj_base-app.css,lanzelot/lanzelot-adaptive.css?v=1378816168">
+
+
 
 <script src="debug.js"></script>
 <script src="app.js"></script>
 
 </head>
-<body>
-  <div class="b-rating" ng-app="LJ" ng-controller="RatingCtrl" ng-class="{'b-rating-loading': loading }" ng-cloak>
+<body ng-app="LJ" ng-controller="MainCtrl" class='b-mainpage-state-rating b-mainpage-state-rating-updates b-mainpage-state-rating-scroll'>
+  <div class="b-rating" ng-class="{'b-rating-loading': loading }" ng-cloak>
 
     <div class="b-rating__settings">
 
@@ -50,24 +53,10 @@
       <p><label><input type="checkbox" ng-model="showDuplicates" inverted> One entry per author</label></p>
     </div>
 
-    <div class="b-rating__list">
+    <div ng-view class="b-rating__list"></div>
 
-      <ol class="b-entryunits"
-        infinite-scroll="showMore()"
-        infinite-scroll-disabled="!scrollMode"
-        >
-        <li class="b-entryunit" ng-repeat="entry in filtered() track by entry.post_url" ng-class="{'b-entryunit__returned-read': showRead && read(entry), 'b-entryunit__returned-hidden': showHidden && hidden(entry)}" ng-animate="listAnimation">
-          <p><a href="{{entry.post_url}}" target="_blank"><strong ng-bind="entry.subject"></strong> <span ng-bind="entry.user"></span></a></p>
-          <p ng-bind="getUser(entry)"></p>
-          <p ng-bind="entry.body"></p>
-          <a href="" ng-click="toggleRead(entry);" ng-bind="read(entry) ? 'unread' : 'mark as read'"></a>
-          <a href="" ng-click="toggleHidden(entry);" ng-bind="hidden(entry) ? 'unhide author' : 'hide author'"></a>
-        </li>
-      </ol>
-
-      <button class="b-more" ng-click="showMore()" ng-show="!scrollMode && anyLeft">More entries</button>
-
-    </div>
   </div>
+
+  <footer class="s-footer" ng-class="{'vis': !scrollMode }">FOOTER</footer>
 </body>
 </html>
